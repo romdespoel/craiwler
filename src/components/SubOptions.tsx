@@ -1,5 +1,6 @@
+import { useState } from "react";
 import type { SubOption } from "../types/game";
-import { STAT_COLORS, STAT_BG_COLORS, STAT_LABELS } from "../config/constants";
+import { STAT_LABELS } from "../config/constants";
 
 interface SubOptionsProps {
   subOptions: SubOption[];
@@ -8,45 +9,91 @@ interface SubOptionsProps {
 }
 
 export default function SubOptions({ subOptions, onSelect, loading }: SubOptionsProps) {
+  const [hovered, setHovered] = useState<string | null>(null);
+
   return (
-    <div className="ml-4 mt-3 space-y-2 border-l-2 border-gold-dim/20 pl-4">
-      {subOptions.map((sub, idx) => {
-        const statColor = STAT_COLORS[sub.stat_check] ?? STAT_COLORS.none;
-        const statBg = STAT_BG_COLORS[sub.stat_check] ?? STAT_BG_COLORS.none;
-        const statLabel = STAT_LABELS[sub.stat_check] ?? "—";
+    <div
+      style={{
+        marginLeft: 20,
+        borderLeft: "2px solid #1a1a1a",
+        paddingLeft: 16,
+        marginTop: 12,
+      }}
+    >
+      {subOptions.map((sub) => {
+        const isHovered = hovered === sub.id;
+        const statLabel = STAT_LABELS[sub.stat_check] ?? "\u2014";
 
         return (
           <button
             key={sub.id}
             onClick={() => onSelect(sub)}
             disabled={loading}
-            className={`w-full text-left p-3 rounded-lg border transition-all duration-200 animate-slide-in ${
-              sub.wild
-                ? "wild-pulse border-wild/60 hover:bg-wild/10"
-                : "border-gold-dim/20 hover:border-gold-dim/50 bg-abyss-light"
-            } ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-            style={{ animationDelay: `${idx * 60}ms` }}
+            onMouseEnter={() => setHovered(sub.id)}
+            onMouseLeave={() => setHovered(null)}
+            style={{
+              width: "100%",
+              background: isHovered ? "#1a1a1a" : "#0a0a0a",
+              marginBottom: 1,
+              padding: "12px 16px",
+              borderLeft: `3px solid ${
+                sub.wild
+                  ? "#ff3333"
+                  : isHovered
+                  ? "#fff"
+                  : "#222"
+              }`,
+              borderTop: "none",
+              borderRight: "none",
+              borderBottom: "none",
+              cursor: loading ? "not-allowed" : "pointer",
+              textAlign: "left",
+              transition: "all 0.15s",
+              opacity: loading ? 0.5 : 1,
+              fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
           >
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-2">
-                <span className="font-display text-sm text-parchment">
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                <span
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: sub.wild ? "#ff3333" : isHovered ? "#fff" : "#e0e0e0",
+                  }}
+                >
                   {sub.label}
                 </span>
                 {sub.wild && (
-                  <span className="text-[10px] font-display tracking-widest text-wild bg-wild/20 px-1.5 py-0.5 rounded">
+                  <span style={{ fontSize: 9, color: "#ff3333", fontWeight: 400, letterSpacing: 2 }}>
                     WILD
                   </span>
                 )}
               </div>
-              {sub.stat_check !== "none" && (
-                <span
-                  className={`text-[11px] font-display tracking-wider px-2 py-0.5 rounded ${statColor} ${statBg}`}
-                >
-                  {statLabel} {sub.difficulty}/10
-                </span>
-              )}
+              <div style={{ fontSize: 11, color: "#555" }}>
+                {sub.description}
+              </div>
             </div>
-            <p className="text-parchment-dim text-sm">{sub.description}</p>
+
+            {/* Stat check badge */}
+            {sub.stat_check !== "none" && (
+              <span
+                style={{
+                  background: "#0a0a0a",
+                  border: "1px solid #1a1a1a",
+                  padding: "2px 6px",
+                  fontSize: 10,
+                  color: "#333",
+                  whiteSpace: "nowrap",
+                  marginLeft: 12,
+                }}
+              >
+                {statLabel}:{sub.difficulty}
+              </span>
+            )}
           </button>
         );
       })}

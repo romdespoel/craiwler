@@ -41,7 +41,7 @@ export default function TypewriterText({
   return (
     <span className={className} onClick={skip} style={{ cursor: done ? "default" : "pointer" }}>
       {displayed}
-      {!done && <span className="cursor-blink text-gold">▎</span>}
+      {!done && <span className="cursor-blink" style={{ color: "#ffffff" }}>█</span>}
     </span>
   );
 }

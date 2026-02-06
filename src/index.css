@@ -1,39 +1,53 @@
 @import "tailwindcss";
 
 @theme {
-  --color-parchment: #d4c8b0;
-  --color-parchment-dim: #a89a80;
-  --color-gold: #c9a84c;
-  --color-gold-dim: #8a7434;
-  --color-abyss: #08080f;
-  --color-abyss-light: #12121f;
-  --color-abyss-lighter: #1a1a2e;
-  --color-blood: #8b2020;
-  --color-blood-bright: #c53030;
-  --color-success: #2d6a4f;
-  --color-partial: #b8860b;
-  --color-failure: #8b2020;
-  --color-critical: #c9a84c;
-  --color-str: #c53030;
-  --color-cha: #c9a84c;
-  --color-cre: #7b2d8b;
-  --color-wild: #c53030;
+  --color-bg: #050505;
+  --color-cell: #0a0a0a;
+  --color-gap: #1a1a1a;
+  --color-text: #e0e0e0;
+  --color-narration: #bbbbbb;
+  --color-muted: #555555;
+  --color-dim: #333333;
+  --color-ghost: #222222;
+  --color-wild: #ff3333;
+  --color-white: #ffffff;
 
-  --font-display: "Cinzel", serif;
-  --font-body: "Crimson Text", serif;
+  /* Mapped aliases for Tailwind class compatibility */
+  --color-parchment: #e0e0e0;
+  --color-parchment-dim: #555555;
+  --color-gold: #e0e0e0;
+  --color-gold-dim: #333333;
+  --color-abyss: #050505;
+  --color-abyss-light: #0a0a0a;
+  --color-abyss-lighter: #1a1a1a;
+  --color-blood: #ff3333;
+  --color-blood-bright: #ff3333;
+  --color-success: #888888;
+  --color-partial: #555555;
+  --color-failure: #ff3333;
+  --color-critical: #ffffff;
+  --color-str: #e0e0e0;
+  --color-cha: #e0e0e0;
+  --color-cre: #e0e0e0;
+
+  --font-display: 'IBM Plex Mono', 'Courier New', monospace;
+  --font-body: 'IBM Plex Mono', 'Courier New', monospace;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  border-radius: 0 !important;
 }
 
 body {
-  background-color: var(--color-abyss);
-  color: var(--color-parchment);
+  background-color: var(--color-bg);
+  color: var(--color-text);
   font-family: var(--font-body);
   min-height: 100vh;
+  font-size: 13px;
 }
 
 /* Scrollbar styling */
@@ -41,11 +55,10 @@ body {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-abyss);
+  background: var(--color-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-gold-dim);
-  border-radius: 3px;
+  background: var(--color-dim);
 }
 
 /* Typewriter cursor */
@@ -55,35 +68,40 @@ body {
 }
 
 .cursor-blink {
-  animation: blink 1s ease-in-out infinite;
+  animation: blink 1s infinite;
 }
 
-/* Wild option pulse */
-@keyframes wild-pulse {
-  0%, 100% { border-color: var(--color-wild); box-shadow: 0 0 5px rgba(197, 48, 48, 0.3); }
-  50% { border-color: #e53e3e; box-shadow: 0 0 15px rgba(197, 48, 48, 0.5); }
+/* Loading dot pulse */
+@keyframes dotPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
 }
 
-.wild-pulse {
-  animation: wild-pulse 2s ease-in-out infinite;
+.dot-pulse {
+  animation: dotPulse 1.2s infinite;
 }
 
-/* Fade in */
+/* Fade in — no transforms, just opacity */
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .animate-fade-in {
-  animation: fade-in 0.4s ease-out forwards;
+  animation: fade-in 0.3s ease-out forwards;
 }
 
-/* Slide in */
+/* Slide in — kept minimal */
 @keyframes slide-in {
-  from { opacity: 0; transform: translateX(-12px); }
-  to { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .animate-slide-in {
   animation: slide-in 0.3s ease-out forwards;
+}
+
+/* Override any wild-pulse to be static — no pulsing in Grid Tactical */
+.wild-pulse {
+  animation: none;
 }
