@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { PlayerClass } from "../types/game";
 import { CLASSES } from "../config/classes";
+import { DEBUG_MODE } from "../hooks/useGame";
 
 interface TitleScreenProps {
   apiKey: string;
@@ -11,7 +12,7 @@ interface TitleScreenProps {
 export default function TitleScreen({ apiKey, onApiKeyChange, onStart }: TitleScreenProps) {
   const [selectedClass, setSelectedClass] = useState<PlayerClass | null>(null);
 
-  const canStart = apiKey.trim().length > 0 && selectedClass !== null;
+  const canStart = (DEBUG_MODE || apiKey.trim().length > 0) && selectedClass !== null;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
@@ -27,21 +28,29 @@ export default function TitleScreen({ apiKey, onApiKeyChange, onStart }: TitleSc
       </p>
 
       {/* API Key */}
-      <div className="w-full max-w-md mb-10">
-        <label className="block font-display text-sm text-parchment-dim mb-2 tracking-wide">
-          ANTHROPIC API KEY
-        </label>
-        <input
-          type="password"
-          value={apiKey}
-          onChange={(e) => onApiKeyChange(e.target.value)}
-          placeholder="sk-ant-..."
-          className="w-full bg-abyss-light border border-gold-dim/40 text-parchment px-4 py-3 rounded focus:outline-none focus:border-gold transition-colors font-body text-lg"
-        />
-        <p className="text-parchment-dim/60 text-sm mt-1">
-          Your key is used client-side only and never stored.
-        </p>
-      </div>
+      {DEBUG_MODE ? (
+        <div className="w-full max-w-md mb-10 text-center">
+          <span className="inline-block font-display text-sm tracking-widest text-wild bg-wild/20 px-4 py-2 rounded border border-wild/40">
+            DEBUG MODE — NO API KEY REQUIRED
+          </span>
+        </div>
+      ) : (
+        <div className="w-full max-w-md mb-10">
+          <label className="block font-display text-sm text-parchment-dim mb-2 tracking-wide">
+            ANTHROPIC API KEY
+          </label>
+          <input
+            type="password"
+            value={apiKey}
+            onChange={(e) => onApiKeyChange(e.target.value)}
+            placeholder="sk-ant-..."
+            className="w-full bg-abyss-light border border-gold-dim/40 text-parchment px-4 py-3 rounded focus:outline-none focus:border-gold transition-colors font-body text-lg"
+          />
+          <p className="text-parchment-dim/60 text-sm mt-1">
+            Your key is used client-side only and never stored.
+          </p>
+        </div>
+      )}
 
       {/* Class Selection */}
       <h2 className="font-display text-xl text-parchment tracking-wide mb-6">
