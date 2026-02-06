@@ -23,8 +23,8 @@ function randomLoadingMessage(): string {
 
 const INITIAL_STATE: GameState = {
   phase: "title",
-  apiKey: "",
-  grokApiKey: "",
+  apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY || "",
+  grokApiKey: import.meta.env.VITE_GROK_API_KEY || "",
   playerClass: null,
   stats: { strength: 3, charisma: 3, creativity: 3 },
   hp: 10,

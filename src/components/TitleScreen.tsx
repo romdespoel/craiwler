@@ -28,36 +28,42 @@ export default function TitleScreen({ apiKey, grokApiKey, onApiKeyChange, onGrok
         You feel like a co-author of your story, but you can absolutely die in it.
       </p>
 
-      {/* API Keys */}
-      <div className="w-full max-w-md mb-10 space-y-6">
-        <div>
-          <label className="block font-display text-sm text-parchment-dim mb-2 tracking-wide">
-            ANTHROPIC API KEY
-          </label>
-          <input
-            type="password"
-            value={apiKey}
-            onChange={(e) => onApiKeyChange(e.target.value)}
-            placeholder="sk-ant-..."
-            className="w-full bg-abyss-light border border-gold-dim/40 text-parchment px-4 py-3 rounded focus:outline-none focus:border-gold transition-colors font-body text-lg"
-          />
+      {/* API Keys - only show if not pre-configured */}
+      {(!apiKey || !grokApiKey) && (
+        <div className="w-full max-w-md mb-10 space-y-6">
+          {!apiKey && (
+            <div>
+              <label className="block font-display text-sm text-parchment-dim mb-2 tracking-wide">
+                ANTHROPIC API KEY
+              </label>
+              <input
+                type="password"
+                value={apiKey}
+                onChange={(e) => onApiKeyChange(e.target.value)}
+                placeholder="sk-ant-..."
+                className="w-full bg-abyss-light border border-gold-dim/40 text-parchment px-4 py-3 rounded focus:outline-none focus:border-gold transition-colors font-body text-lg"
+              />
+            </div>
+          )}
+          {!grokApiKey && (
+            <div>
+              <label className="block font-display text-sm text-parchment-dim mb-2 tracking-wide">
+                GROK API KEY <span className="text-parchment-dim/40">(for video highlights)</span>
+              </label>
+              <input
+                type="password"
+                value={grokApiKey}
+                onChange={(e) => onGrokApiKeyChange(e.target.value)}
+                placeholder="xai-..."
+                className="w-full bg-abyss-light border border-gold-dim/40 text-parchment px-4 py-3 rounded focus:outline-none focus:border-gold transition-colors font-body text-lg"
+              />
+            </div>
+          )}
+          <p className="text-parchment-dim/60 text-sm">
+            Keys are used client-side only and never stored.
+          </p>
         </div>
-        <div>
-          <label className="block font-display text-sm text-parchment-dim mb-2 tracking-wide">
-            GROK API KEY <span className="text-parchment-dim/40">(for video highlights)</span>
-          </label>
-          <input
-            type="password"
-            value={grokApiKey}
-            onChange={(e) => onGrokApiKeyChange(e.target.value)}
-            placeholder="xai-..."
-            className="w-full bg-abyss-light border border-gold-dim/40 text-parchment px-4 py-3 rounded focus:outline-none focus:border-gold transition-colors font-body text-lg"
-          />
-        </div>
-        <p className="text-parchment-dim/60 text-sm">
-          Keys are used client-side only and never stored.
-        </p>
-      </div>
+      )}
 
       {/* Class Selection */}
       <h2 className="font-display text-xl text-parchment tracking-wide mb-6">
