@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 interface TypewriterTextProps {
   text: string;
@@ -15,6 +15,8 @@ export default function TypewriterText({
 }: TypewriterTextProps) {
   const [displayed, setDisplayed] = useState("");
   const [done, setDone] = useState(false);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     setDisplayed("");
@@ -26,17 +28,17 @@ export default function TypewriterText({
       if (i >= text.length) {
         clearInterval(timer);
         setDone(true);
-        onComplete?.();
+        onCompleteRef.current?.();
       }
     }, speed);
     return () => clearInterval(timer);
-  }, [text, speed, onComplete]);
+  }, [text, speed]);
 
   const skip = useCallback(() => {
     setDisplayed(text);
     setDone(true);
-    onComplete?.();
-  }, [text, onComplete]);
+    onCompleteRef.current?.();
+  }, [text]);
 
   return (
     <span className={className} onClick={skip} style={{ cursor: done ? "default" : "pointer" }}>

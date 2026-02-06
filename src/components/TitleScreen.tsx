@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { PlayerClass } from "../types/game";
 import { CLASSES } from "../config/classes";
+import { DEBUG_MODE } from "../hooks/useGame";
 
 interface TitleScreenProps {
   apiKey: string;
@@ -13,7 +14,7 @@ interface TitleScreenProps {
 export default function TitleScreen({ apiKey, grokApiKey, onApiKeyChange, onGrokApiKeyChange, onStart }: TitleScreenProps) {
   const [selectedClass, setSelectedClass] = useState<PlayerClass | null>(null);
 
-  const canStart = apiKey.trim().length > 0 && selectedClass !== null;
+  const canStart = (DEBUG_MODE || apiKey.trim().length > 0) && selectedClass !== null;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
@@ -28,8 +29,14 @@ export default function TitleScreen({ apiKey, grokApiKey, onApiKeyChange, onGrok
         You feel like a co-author of your story, but you can absolutely die in it.
       </p>
 
-      {/* API Keys - only show if not pre-configured */}
-      {(!apiKey || !grokApiKey) && (
+      {/* API Keys */}
+      {DEBUG_MODE ? (
+        <div className="w-full max-w-md mb-10 text-center">
+          <span className="inline-block font-display text-sm tracking-widest text-wild bg-wild/20 px-4 py-2 rounded border border-wild/40">
+            DEBUG MODE — NO API KEY REQUIRED
+          </span>
+        </div>
+      ) : (apiKey && grokApiKey) ? null : (
         <div className="w-full max-w-md mb-10 space-y-6">
           {!apiKey && (
             <div>

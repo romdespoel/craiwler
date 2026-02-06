@@ -32,12 +32,15 @@ export default function GameScreen({
   const bottomRef = useRef<HTMLDivElement>(null);
   const [narrationDone, setNarrationDone] = useState(false);
   const [hasLoadedMore, setHasLoadedMore] = useState(false);
+  const [prevNarration, setPrevNarration] = useState(state.currentNarration);
 
-  // Reset narration state when narration changes
-  useEffect(() => {
+  // Reset narration-dependent state when narration text changes
+  // (React-recommended pattern for adjusting state based on prop changes)
+  if (prevNarration !== state.currentNarration) {
+    setPrevNarration(state.currentNarration);
     setNarrationDone(false);
     setHasLoadedMore(false);
-  }, [state.currentNarration]);
+  }
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -96,11 +99,13 @@ export default function GameScreen({
           </div>
         )}
 
-        {/* Loading */}
-        {state.loading && <LoadingIndicator message={state.loadingMessage} />}
+        {/* Loading — only show standalone when no options are visible yet */}
+        {state.loading && state.currentOptions.length === 0 && (
+          <LoadingIndicator message={state.loadingMessage} />
+        )}
 
-        {/* Options area */}
-        {!state.loading && !state.error && narrationDone && state.currentOptions.length > 0 && (
+        {/* Options area — stay visible while loading sub-options */}
+        {!state.error && narrationDone && state.currentOptions.length > 0 && (
           <div className="space-y-3 animate-fade-in">
             <HighLevelOptions
               options={state.currentOptions}
@@ -111,6 +116,13 @@ export default function GameScreen({
               hasLoadedMore={hasLoadedMore}
             />
 
+            {/* Inline loading for sub-options */}
+            {state.selectedOption && state.loading && !state.currentSubOptions && (
+              <div className="ml-4 mt-3 border-l-2 border-gold-dim/20 pl-4">
+                <LoadingIndicator message={state.loadingMessage} />
+              </div>
+            )}
+
             {/* Sub-options */}
             {state.selectedOption && state.currentSubOptions && (
               <>
@@ -119,16 +131,25 @@ export default function GameScreen({
                   onSelect={onSelectSubOption}
                   loading={state.loading}
                 />
-                <CustomInput
-                  onSubmit={onSubmitCustomInput}
-                  loading={state.loading}
-                />
-                <button
-                  onClick={onClearSelection}
-                  className="text-xs font-display text-parchment-dim/40 tracking-wider hover:text-parchment-dim transition-colors mt-2"
-                >
-                  ← BACK TO OPTIONS
-                </button>
+                {/* Resolution loading — shown after picking a sub-option */}
+                {state.loading ? (
+                  <div className="ml-4 mt-3 border-l-2 border-gold-dim/20 pl-4">
+                    <LoadingIndicator message={state.loadingMessage} />
+                  </div>
+                ) : (
+                  <>
+                    <CustomInput
+                      onSubmit={onSubmitCustomInput}
+                      loading={state.loading}
+                    />
+                    <button
+                      onClick={onClearSelection}
+                      className="text-xs font-display text-parchment-dim/40 tracking-wider hover:text-parchment-dim transition-colors mt-2"
+                    >
+                      ← BACK TO OPTIONS
+                    </button>
+                  </>
+                )}
               </>
             )}
           </div>

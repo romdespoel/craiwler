@@ -14,8 +14,17 @@ import {
   resolveAction,
   loadMoreOptions,
 } from "../services/ai";
+import {
+  mockGenerateOpeningScenario,
+  mockGenerateSubOptions,
+  mockResolveAction,
+  mockValidateCustomInput,
+  mockLoadMoreOptions,
+} from "../services/mockData";
 import { performStatCheck } from "../services/resolution";
 import { LOADING_MESSAGES, BIOMES, ENCOUNTERS_PER_FLOOR } from "../config/constants";
+
+export const DEBUG_MODE = new URLSearchParams(window.location.search).has("debug");
 
 function randomLoadingMessage(): string {
   return LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)];
@@ -318,6 +327,19 @@ export function useGame() {
       dispatch({ type: "SELECT_CLASS", playerClass });
       dispatch({ type: "SET_LOADING", loading: true, message: "The dungeon awaits..." });
 
+      if (DEBUG_MODE) {
+        try {
+          const response = await mockGenerateOpeningScenario();
+          dispatch({ type: "SET_OPENING_SCENARIO", response });
+        } catch (err) {
+          dispatch({
+            type: "SET_ERROR",
+            error: `Debug mock error: ${err instanceof Error ? err.message : "Unknown error"}`,
+          });
+        }
+        return;
+      }
+
       // Build a temporary state with the class selected to pass to the API
       const tempState: GameState = {
         ...INITIAL_STATE,
@@ -350,11 +372,13 @@ export function useGame() {
       dispatch({ type: "SET_LOADING", loading: true });
 
       try {
-        const response = await generateSubOptions(state, {
-          label: option.label,
-          hint: option.hint,
-          wild: option.wild,
-        });
+        const response = DEBUG_MODE
+          ? await mockGenerateSubOptions(option.id)
+          : await generateSubOptions(state, {
+              label: option.label,
+              hint: option.hint,
+              wild: option.wild,
+            });
         dispatch({ type: "SET_SUB_OPTIONS", subOptions: response.sub_options });
       } catch (err) {
         dispatch({
@@ -378,13 +402,15 @@ export function useGame() {
           tier = result.tier;
         }
 
-        const response = await resolveAction(
-          state,
-          subOption.label,
-          tier,
-          subOption.stat_check,
-          subOption.difficulty
-        );
+        const response = DEBUG_MODE
+          ? await mockResolveAction(subOption.id, tier)
+          : await resolveAction(
+              state,
+              subOption.label,
+              tier,
+              subOption.stat_check,
+              subOption.difficulty
+            );
 
         const wasWild = subOption.wild || (state.selectedOption?.wild ?? false);
         dispatch({ type: "RESOLVE_ACTION", response, choice: subOption.label, wasWild });
@@ -403,7 +429,9 @@ export function useGame() {
       dispatch({ type: "SET_LOADING", loading: true });
 
       try {
-        const validation = await validateCustomInput(state, input);
+        const validation = DEBUG_MODE
+          ? await mockValidateCustomInput()
+          : await validateCustomInput(state, input);
 
         if (!validation.valid) {
           dispatch({
@@ -427,13 +455,15 @@ export function useGame() {
           tier = result.tier;
         }
 
-        const response = await resolveAction(
-          state,
-          validation.interpretation,
-          tier,
-          validation.stat_check,
-          validation.difficulty
-        );
+        const response = DEBUG_MODE
+          ? await mockResolveAction(-1, tier)
+          : await resolveAction(
+              state,
+              validation.interpretation,
+              tier,
+              validation.stat_check,
+              validation.difficulty
+            );
 
         dispatch({
           type: "RESOLVE_ACTION",
@@ -454,8 +484,9 @@ export function useGame() {
   const loadMore = useCallback(async () => {
     dispatch({ type: "SET_LOADING", loading: true });
     try {
-      const existingLabels = state.currentOptions.map((o) => o.label);
-      const response = await loadMoreOptions(state, existingLabels);
+      const response = DEBUG_MODE
+        ? await mockLoadMoreOptions()
+        : await loadMoreOptions(state, state.currentOptions.map((o) => o.label));
       dispatch({ type: "ADD_MORE_OPTIONS", options: response.options });
     } catch (err) {
       dispatch({
