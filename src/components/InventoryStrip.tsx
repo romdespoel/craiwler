@@ -1,35 +1,27 @@
-import { useState } from "react";
-
 interface InventoryStripProps {
   items: string[];
 }
 
 export default function InventoryStrip({ items }: InventoryStripProps) {
-  const [open, setOpen] = useState(false);
-
   if (items.length === 0) return null;
 
   return (
-    <div className="border-b border-gold-dim/10 bg-abyss-light/50">
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full px-4 py-2 flex items-center justify-between text-xs font-display text-parchment-dim tracking-wider hover:text-parchment transition-colors"
-      >
-        <span>INVENTORY ({items.length})</span>
-        <span>{open ? "▲" : "▼"}</span>
-      </button>
-      {open && (
-        <div className="px-4 pb-3 flex flex-wrap gap-2">
-          {items.map((item, i) => (
-            <span
-              key={`${item}-${i}`}
-              className="px-3 py-1 bg-abyss-lighter border border-gold-dim/20 rounded text-sm text-parchment"
-            >
-              {item}
-            </span>
-          ))}
+    <div style={{ display: "flex", gap: 1, marginTop: 20 }}>
+      {items.map((item, i) => (
+        <div
+          key={`${item}-${i}`}
+          style={{
+            background: "#0a0a0a",
+            padding: "6px 10px",
+            fontSize: 10,
+            color: "#444",
+            letterSpacing: 1,
+            textTransform: "uppercase",
+          }}
+        >
+          {item}
         </div>
-      )}
+      ))}
     </div>
   );
 }

@@ -10,25 +10,38 @@ interface TitleScreenProps {
 
 export default function TitleScreen({ apiKey, onApiKeyChange, onStart }: TitleScreenProps) {
   const [selectedClass, setSelectedClass] = useState<PlayerClass | null>(null);
+  const [hoveredClass, setHoveredClass] = useState<string | null>(null);
+  const [hoveredStart, setHoveredStart] = useState(false);
 
   const canStart = apiKey.trim().length > 0 && selectedClass !== null;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "32px 16px",
+        background: "#050505",
+        fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+      }}
+    >
       {/* Title */}
-      <h1 className="font-display text-5xl md:text-7xl text-gold tracking-wider mb-2">
-        DUNGEON
+      <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: 6, color: "#fff", marginBottom: 8, textTransform: "uppercase" as const }}>
+        DEPTHS UNKNOWN
       </h1>
-      <h1 className="font-display text-5xl md:text-7xl text-gold tracking-wider mb-4">
-        CRAIWLER
-      </h1>
-      <p className="text-parchment-dim text-lg italic mb-12">
-        You feel like a co-author of your story, but you can absolutely die in it.
+      <p style={{ fontSize: 13, color: "#555", marginBottom: 48 }}>
+        choose your path
       </p>
 
+      {/* Divider */}
+      <div style={{ width: 200, borderBottom: "1px solid #1a1a1a", marginBottom: 32 }} />
+
       {/* API Key */}
-      <div className="w-full max-w-md mb-10">
-        <label className="block font-display text-sm text-parchment-dim mb-2 tracking-wide">
+      <div style={{ width: "100%", maxWidth: 420, marginBottom: 40 }}>
+        <label style={{ display: "block", fontSize: 10, color: "#555", letterSpacing: 2, marginBottom: 8, textTransform: "uppercase" as const }}>
           ANTHROPIC API KEY
         </label>
         <input
@@ -36,61 +49,100 @@ export default function TitleScreen({ apiKey, onApiKeyChange, onStart }: TitleSc
           value={apiKey}
           onChange={(e) => onApiKeyChange(e.target.value)}
           placeholder="sk-ant-..."
-          className="w-full bg-abyss-light border border-gold-dim/40 text-parchment px-4 py-3 rounded focus:outline-none focus:border-gold transition-colors font-body text-lg"
+          style={{
+            width: "100%",
+            background: "#0a0a0a",
+            border: "1px solid #1a1a1a",
+            color: "#e0e0e0",
+            fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+            fontSize: 14,
+            padding: "10px 14px",
+            outline: "none",
+          }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = "#333"; }}
+          onBlur={(e) => { e.currentTarget.style.borderColor = "#1a1a1a"; }}
         />
-        <p className="text-parchment-dim/60 text-sm mt-1">
+        <p style={{ color: "#333", fontSize: 11, marginTop: 6 }}>
           Your key is used client-side only and never stored.
         </p>
       </div>
 
-      {/* Class Selection */}
-      <h2 className="font-display text-xl text-parchment tracking-wide mb-6">
-        CHOOSE YOUR CLASS
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl mb-10">
+      {/* Class Selection — 3-column grid */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr",
+          gap: 1,
+          background: "#1a1a1a",
+          width: "100%",
+          maxWidth: 580,
+          marginBottom: 40,
+        }}
+      >
         {CLASSES.map((cls) => {
           const isSelected = selectedClass?.name === cls.name;
+          const isHovered = hoveredClass === cls.name;
+          const inverted = isSelected || isHovered;
+
           return (
             <button
               key={cls.name}
               onClick={() => setSelectedClass(cls)}
-              className={`text-left p-5 rounded-lg border transition-all duration-200 ${
-                isSelected
-                  ? "border-gold bg-gold/10 shadow-[0_0_15px_rgba(201,168,76,0.15)]"
-                  : "border-gold-dim/30 bg-abyss-light hover:border-gold-dim/60"
-              }`}
+              onMouseEnter={() => setHoveredClass(cls.name)}
+              onMouseLeave={() => setHoveredClass(null)}
+              style={{
+                background: inverted ? "#fff" : "#0a0a0a",
+                color: inverted ? "#000" : "#e0e0e0",
+                padding: "18px 14px",
+                textAlign: "center",
+                cursor: "pointer",
+                border: "none",
+                transition: "all 0.15s",
+                fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+              }}
             >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl">{cls.emoji}</span>
-                <span className="font-display text-lg text-gold">{cls.name}</span>
+              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1, marginBottom: 8, textTransform: "uppercase" as const }}>
+                {cls.name.replace("The ", "")}
               </div>
-              <p className="text-parchment-dim text-sm mb-3">{cls.description}</p>
-              <div className="flex gap-3 text-xs font-display tracking-wider">
-                <span className="text-str">STR {cls.stats.strength}</span>
-                <span className="text-cha">CHA {cls.stats.charisma}</span>
-                <span className="text-cre">CRE {cls.stats.creativity}</span>
+              <div style={{ fontSize: 20, marginBottom: 8 }}>
+                {cls.emoji}
               </div>
-              <div className="flex gap-3 text-xs mt-1 text-parchment-dim">
-                <span>HP {cls.hp}</span>
-                <span>Gold {cls.gold}</span>
+              <div style={{ fontSize: 11, marginBottom: 6 }}>
+                S{cls.stats.strength} C{cls.stats.charisma} R{cls.stats.creativity}
               </div>
-              <div className="text-xs text-parchment-dim/70 mt-2">
-                {cls.inventory.join(", ")}
+              <div style={{ fontSize: 11, marginBottom: 4 }}>
+                HP {cls.hp}
+              </div>
+              <div style={{ fontSize: 11, color: inverted ? "#333" : "#555" }}>
+                G {cls.gold}
+              </div>
+              <div style={{ fontSize: 11, color: inverted ? "#555" : "#555", lineHeight: 1.5, marginTop: 8 }}>
+                {cls.description}
               </div>
             </button>
           );
         })}
       </div>
 
-      {/* Start Button */}
+      {/* Descend Button */}
       <button
         disabled={!canStart}
         onClick={() => selectedClass && onStart(selectedClass)}
-        className={`font-display text-xl tracking-widest px-12 py-4 rounded-lg border transition-all duration-300 ${
-          canStart
-            ? "border-gold text-gold hover:bg-gold/10 hover:shadow-[0_0_20px_rgba(201,168,76,0.2)] cursor-pointer"
-            : "border-gold-dim/20 text-gold-dim/40 cursor-not-allowed"
-        }`}
+        onMouseEnter={() => setHoveredStart(true)}
+        onMouseLeave={() => setHoveredStart(false)}
+        style={{
+          border: `1px solid ${canStart ? (hoveredStart ? "#fff" : "#333") : "#1a1a1a"}`,
+          background: "transparent",
+          color: canStart ? (hoveredStart ? "#fff" : "#888") : "#333",
+          padding: "12px 24px",
+          fontSize: 14,
+          fontWeight: 700,
+          letterSpacing: 4,
+          cursor: canStart ? "pointer" : "not-allowed",
+          transition: "all 0.15s",
+          fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+          textTransform: "uppercase" as const,
+        }}
       >
         DESCEND
       </button>
