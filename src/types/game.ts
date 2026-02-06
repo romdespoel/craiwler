@@ -129,6 +129,7 @@ export type GamePhase = "title" | "playing" | "dead" | "victory";
 export interface GameState {
   phase: GamePhase;
   apiKey: string;
+  grokApiKey: string;
 
   // Player
   playerClass: PlayerClass | null;
@@ -178,6 +179,7 @@ export interface TurnSummary {
 // ─── Game Actions ──────────────────────────────────────────
 export type GameAction =
   | { type: "SET_API_KEY"; apiKey: string }
+  | { type: "SET_GROK_API_KEY"; grokApiKey: string }
   | { type: "SELECT_CLASS"; playerClass: PlayerClass }
   | { type: "SET_OPENING_SCENARIO"; response: OpeningScenarioResponse }
   | { type: "SELECT_OPTION"; option: HighLevelOption }

@@ -37,7 +37,7 @@ export default function VictoryScreen({ state, onRestart }: VictoryScreenProps) 
         </div>
       </div>
 
-      <HighlightReel highlights={state.highlights} />
+      <HighlightReel highlights={state.highlights} grokApiKey={state.grokApiKey} />
 
       <button
         onClick={onRestart}

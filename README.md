@@ -10,6 +10,7 @@ An AI-driven text dungeon crawler played in the browser. Descend through a proce
 
 - Node.js 18+
 - An [Anthropic API key](https://console.anthropic.com/)
+- (Optional) A [Grok API key](https://console.x.ai/) for visual highlight reels
 
 ### Install & Run
 
@@ -29,10 +30,14 @@ On the title screen, paste your Anthropic API key. The key is used client-side o
 | Key | Required | How to Get |
 |-----|----------|------------|
 | Anthropic API | Yes | https://console.anthropic.com/ |
+| Grok API | Optional | https://console.x.ai/ |
 
 The game calls the Anthropic API directly from the browser using:
 - **Claude Sonnet** for opening scenarios, action resolution, and floor transitions
 - **Claude Haiku** for sub-option generation, custom input validation, and "load more" options
+
+The Grok API is used for:
+- **Grok 2 Image** to generate visual highlight reels at the end of each run
 
 ## How to Play
 
@@ -51,6 +56,10 @@ One option in each set is marked **WILD** (pulsing red border). These are high-r
 
 Click "Write your own action" to type a free-text command (max 200 characters). If your action is impossible given the world state, it fails diegetically and costs your turn.
 
+### Highlight Reel
+
+At the end of each run (death or victory), your top dramatic moments are displayed. If you entered a Grok API key, you can generate AI-illustrated images of these moments and download them as a shareable montage.
+
 ## Build for Production
 
 ```bash
@@ -65,3 +74,4 @@ Output goes to `dist/`. Serve with any static file server.
 - Vite
 - Tailwind CSS v4
 - Anthropic Claude API (Sonnet + Haiku)
+- Grok API (Image generation)

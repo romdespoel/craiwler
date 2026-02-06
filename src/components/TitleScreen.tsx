@@ -4,11 +4,13 @@ import { CLASSES } from "../config/classes";
 
 interface TitleScreenProps {
   apiKey: string;
+  grokApiKey: string;
   onApiKeyChange: (key: string) => void;
+  onGrokApiKeyChange: (key: string) => void;
   onStart: (playerClass: PlayerClass) => void;
 }
 
-export default function TitleScreen({ apiKey, onApiKeyChange, onStart }: TitleScreenProps) {
+export default function TitleScreen({ apiKey, grokApiKey, onApiKeyChange, onGrokApiKeyChange, onStart }: TitleScreenProps) {
   const [selectedClass, setSelectedClass] = useState<PlayerClass | null>(null);
 
   const canStart = apiKey.trim().length > 0 && selectedClass !== null;
@@ -26,20 +28,34 @@ export default function TitleScreen({ apiKey, onApiKeyChange, onStart }: TitleSc
         You feel like a co-author of your story, but you can absolutely die in it.
       </p>
 
-      {/* API Key */}
-      <div className="w-full max-w-md mb-10">
-        <label className="block font-display text-sm text-parchment-dim mb-2 tracking-wide">
-          ANTHROPIC API KEY
-        </label>
-        <input
-          type="password"
-          value={apiKey}
-          onChange={(e) => onApiKeyChange(e.target.value)}
-          placeholder="sk-ant-..."
-          className="w-full bg-abyss-light border border-gold-dim/40 text-parchment px-4 py-3 rounded focus:outline-none focus:border-gold transition-colors font-body text-lg"
-        />
-        <p className="text-parchment-dim/60 text-sm mt-1">
-          Your key is used client-side only and never stored.
+      {/* API Keys */}
+      <div className="w-full max-w-md mb-10 space-y-6">
+        <div>
+          <label className="block font-display text-sm text-parchment-dim mb-2 tracking-wide">
+            ANTHROPIC API KEY
+          </label>
+          <input
+            type="password"
+            value={apiKey}
+            onChange={(e) => onApiKeyChange(e.target.value)}
+            placeholder="sk-ant-..."
+            className="w-full bg-abyss-light border border-gold-dim/40 text-parchment px-4 py-3 rounded focus:outline-none focus:border-gold transition-colors font-body text-lg"
+          />
+        </div>
+        <div>
+          <label className="block font-display text-sm text-parchment-dim mb-2 tracking-wide">
+            GROK API KEY <span className="text-parchment-dim/40">(for video highlights)</span>
+          </label>
+          <input
+            type="password"
+            value={grokApiKey}
+            onChange={(e) => onGrokApiKeyChange(e.target.value)}
+            placeholder="xai-..."
+            className="w-full bg-abyss-light border border-gold-dim/40 text-parchment px-4 py-3 rounded focus:outline-none focus:border-gold transition-colors font-body text-lg"
+          />
+        </div>
+        <p className="text-parchment-dim/60 text-sm">
+          Keys are used client-side only and never stored.
         </p>
       </div>
 

@@ -24,6 +24,7 @@ function randomLoadingMessage(): string {
 const INITIAL_STATE: GameState = {
   phase: "title",
   apiKey: "",
+  grokApiKey: "",
   playerClass: null,
   stats: { strength: 3, charisma: 3, creativity: 3 },
   hp: 10,
@@ -63,6 +64,9 @@ function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "SET_API_KEY":
       return { ...state, apiKey: action.apiKey };
+
+    case "SET_GROK_API_KEY":
+      return { ...state, grokApiKey: action.grokApiKey };
 
     case "SELECT_CLASS": {
       const pc = action.playerClass;
@@ -291,7 +295,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return { ...state, selectedOption: null, currentSubOptions: null };
 
     case "RESET_GAME":
-      return { ...INITIAL_STATE, apiKey: state.apiKey };
+      return { ...INITIAL_STATE, apiKey: state.apiKey, grokApiKey: state.grokApiKey };
 
     default:
       return state;
@@ -303,6 +307,10 @@ export function useGame() {
 
   const setApiKey = useCallback((apiKey: string) => {
     dispatch({ type: "SET_API_KEY", apiKey });
+  }, []);
+
+  const setGrokApiKey = useCallback((grokApiKey: string) => {
+    dispatch({ type: "SET_GROK_API_KEY", grokApiKey });
   }, []);
 
   const startGame = useCallback(
@@ -472,6 +480,7 @@ export function useGame() {
   return {
     state,
     setApiKey,
+    setGrokApiKey,
     startGame,
     selectOption,
     selectSubOption,

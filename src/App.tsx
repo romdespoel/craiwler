@@ -8,6 +8,7 @@ export default function App() {
   const {
     state,
     setApiKey,
+    setGrokApiKey,
     startGame,
     selectOption,
     selectSubOption,
@@ -23,7 +24,9 @@ export default function App() {
       return (
         <TitleScreen
           apiKey={state.apiKey}
+          grokApiKey={state.grokApiKey}
           onApiKeyChange={setApiKey}
+          onGrokApiKeyChange={setGrokApiKey}
           onStart={startGame}
         />
       );
