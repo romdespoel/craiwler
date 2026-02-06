@@ -5,26 +5,63 @@ interface NarrationLogProps {
   history: TurnSummary[];
 }
 
+// Map outcome tiers to left-border colors for history (at 0.6 opacity multiplied)
+const HISTORY_BORDER_COLORS: Record<string, string> = {
+  critical_success: "#999",
+  success: "#555",
+  partial: "#333",
+  failure: "#992020",
+};
+
 export default function NarrationLog({ history }: NarrationLogProps) {
   if (history.length === 0) return null;
 
   return (
-    <div className="space-y-3 mb-6 opacity-70">
+    <div style={{ marginBottom: 24 }}>
       {history.map((turn) => {
         const style = OUTCOME_STYLES[turn.tier] ?? OUTCOME_STYLES.success;
+        const borderColor = HISTORY_BORDER_COLORS[turn.tier] ?? "#333";
+
         return (
-          <div
-            key={turn.turn}
-            className={`pl-4 border-l-2 ${style.border} ${style.bg} py-2 pr-3 rounded-r text-sm`}
-          >
-            <div className="text-parchment-dim text-xs mb-1 font-display tracking-wider">
-              Turn {turn.turn} — Floor {turn.floor}
-            </div>
-            <p className="text-parchment/80 italic mb-1">{turn.narration}</p>
-            <p className="text-parchment-dim text-xs">
-              Chose: <span className="text-gold">{turn.choice}</span> — {style.label}
+          <div key={turn.turn} style={{ marginBottom: 20 }}>
+            {/* Narration text — dimmed */}
+            <p style={{ color: "#555", fontSize: 14, lineHeight: 1.7, marginBottom: 8 }}>
+              {turn.narration}
             </p>
-            <p className="text-parchment/70 text-sm mt-1">{turn.outcome}</p>
+
+            {/* Choice marker */}
+            <div
+              style={{
+                borderLeft: "3px solid #333",
+                paddingLeft: 12,
+                color: "#555",
+                fontSize: 13,
+                marginBottom: 6,
+              }}
+            >
+              ▸ {turn.choice}
+            </div>
+
+            {/* Outcome — reduced opacity border/tint */}
+            <div
+              style={{
+                borderLeft: `3px solid ${borderColor}`,
+                paddingLeft: 12,
+                paddingTop: 4,
+                paddingBottom: 4,
+                fontSize: 13,
+                color: turn.tier === "failure" ? "#992020" : "#555",
+                lineHeight: 1.7,
+              }}
+            >
+              <span style={{ fontSize: 10, letterSpacing: 1, textTransform: "uppercase" as const }}>
+                {style.label}
+              </span>
+              <p style={{ marginTop: 2 }}>{turn.outcome}</p>
+            </div>
+
+            {/* Divider */}
+            <div style={{ borderBottom: "1px solid #1a1a1a", marginTop: 20 }} />
           </div>
         );
       })}

@@ -24,16 +24,17 @@ const TYPE_LABELS: Record<string, string> = {
   victory: "Victory",
 };
 
-const TYPE_COLORS: Record<string, string> = {
-  critical_success: "border-l-critical",
-  death: "border-l-failure",
-  wild_success: "border-l-wild",
-  wild_failure: "border-l-wild",
-  boss_encounter: "border-l-gold",
-  major_loss: "border-l-partial",
-  major_gain: "border-l-success",
-  close_call: "border-l-partial",
-  victory: "border-l-gold",
+// Monochrome border system — only red for death/wild_failure/failure-related
+const TYPE_BORDER_COLORS: Record<string, string> = {
+  critical_success: "#ffffff",
+  death: "#ff3333",
+  wild_success: "#888",
+  wild_failure: "#ff3333",
+  boss_encounter: "#888",
+  major_loss: "#555",
+  major_gain: "#888",
+  close_call: "#555",
+  victory: "#ffffff",
 };
 
 export default function HighlightReel({ highlights, grokApiKey }: HighlightReelProps) {
@@ -42,6 +43,7 @@ export default function HighlightReel({ highlights, grokApiKey }: HighlightReelP
   const [result, setResult] = useState<HighlightReelResult | null>(null);
   const [montageUrl, setMontageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [hoveredButton, setHoveredButton] = useState<string | null>(null);
 
   // Select top 5 highlights by dramatic weight, deduplicated by turn
   const seen = new Set<number>();
@@ -93,31 +95,38 @@ export default function HighlightReel({ highlights, grokApiKey }: HighlightReelP
   };
 
   return (
-    <div className="w-full max-w-2xl">
-      <h3 className="font-display text-sm text-parchment-dim tracking-widest mb-4 text-center">
+    <div style={{ width: "100%", maxWidth: 580 }}>
+      <h3 style={{ fontSize: 10, color: "#555", letterSpacing: 2, marginBottom: 16, textAlign: "center", textTransform: "uppercase" as const }}>
         HIGHLIGHT REEL
       </h3>
 
       {/* Generated Images */}
       {result && result.images.length > 0 && (
-        <div className="mb-6">
-          <div className="grid grid-cols-2 gap-3 mb-4">
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "#1a1a1a", marginBottom: 16 }}>
             {result.images.map(({ highlight, imageUrl }, idx) => (
               <div
                 key={`${highlight.turn}-${idx}`}
-                className="relative rounded-lg overflow-hidden animate-fade-in"
-                style={{ animationDelay: `${idx * 150}ms` }}
+                className="animate-fade-in"
+                style={{ position: "relative", animationDelay: `${idx * 150}ms` }}
               >
                 <img
                   src={imageUrl}
                   alt={`Turn ${highlight.turn} - ${highlight.type}`}
-                  className="w-full aspect-square object-cover"
+                  style={{ width: "100%", aspectRatio: "1", objectFit: "cover", display: "block" }}
                 />
-                <div className="absolute bottom-0 left-0 right-0 bg-abyss/80 backdrop-blur-sm px-3 py-2">
-                  <div className="text-[10px] font-display text-gold tracking-wider">
+                <div style={{
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  background: "rgba(0,0,0,0.8)",
+                  padding: "8px 10px",
+                }}>
+                  <div style={{ fontSize: 9, color: "#888", letterSpacing: 1 }}>
                     {TYPE_LABELS[highlight.type] ?? highlight.type}
                   </div>
-                  <div className="text-[9px] text-parchment-dim truncate">
+                  <div style={{ fontSize: 9, color: "#555", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     Turn {highlight.turn} — {highlight.choice}
                   </div>
                 </div>
@@ -129,12 +138,28 @@ export default function HighlightReel({ highlights, grokApiKey }: HighlightReelP
           {montageUrl && (
             <button
               onClick={handleDownload}
-              className="w-full py-3 font-display text-sm text-gold tracking-widest border border-gold rounded-lg hover:bg-gold/10 transition-colors flex items-center justify-center gap-2"
+              onMouseEnter={() => setHoveredButton("download")}
+              onMouseLeave={() => setHoveredButton(null)}
+              style={{
+                width: "100%",
+                padding: "12px",
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: 2,
+                border: `1px solid ${hoveredButton === "download" ? "#fff" : "#333"}`,
+                background: "transparent",
+                color: hoveredButton === "download" ? "#fff" : "#888",
+                cursor: "pointer",
+                transition: "all 0.15s",
+                fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+                textTransform: "uppercase" as const,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+              }}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              DOWNLOAD HIGHLIGHT REEL
+              <span>↓</span> DOWNLOAD HIGHLIGHT REEL
             </button>
           )}
         </div>
@@ -145,21 +170,26 @@ export default function HighlightReel({ highlights, grokApiKey }: HighlightReelP
         <button
           onClick={handleGenerate}
           disabled={generating}
-          className={`w-full py-3 mb-6 font-display text-sm tracking-widest border rounded-lg transition-colors ${
-            generating
-              ? "border-gold-dim/30 text-gold-dim/50 cursor-not-allowed"
-              : "border-gold text-gold hover:bg-gold/10"
-          }`}
+          onMouseEnter={() => setHoveredButton("generate")}
+          onMouseLeave={() => setHoveredButton(null)}
+          style={{
+            width: "100%",
+            padding: "12px",
+            marginBottom: 24,
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: 2,
+            border: `1px solid ${generating ? "#1a1a1a" : hoveredButton === "generate" ? "#fff" : "#333"}`,
+            background: "transparent",
+            color: generating ? "#333" : hoveredButton === "generate" ? "#fff" : "#888",
+            cursor: generating ? "not-allowed" : "pointer",
+            transition: "all 0.15s",
+            fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+            textTransform: "uppercase" as const,
+          }}
         >
           {generating ? (
-            <span className="flex items-center justify-center gap-2">
-              <span className="flex gap-1">
-                <span className="w-1.5 h-1.5 bg-gold rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                <span className="w-1.5 h-1.5 bg-gold rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                <span className="w-1.5 h-1.5 bg-gold rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-              </span>
-              GENERATING IMAGE {progress.current}/{progress.total}
-            </span>
+            <span>GENERATING IMAGE {progress.current}/{progress.total}...</span>
           ) : (
             "GENERATE VISUAL HIGHLIGHT REEL"
           )}
@@ -168,32 +198,43 @@ export default function HighlightReel({ highlights, grokApiKey }: HighlightReelP
 
       {/* Error Message */}
       {error && (
-        <div className="mb-4 p-3 border border-failure/50 bg-failure/10 rounded-lg text-sm text-parchment-dim">
+        <div style={{
+          marginBottom: 16,
+          padding: 12,
+          border: "1px solid rgba(255, 51, 51, 0.3)",
+          background: "rgba(255, 51, 51, 0.05)",
+          fontSize: 12,
+          color: "#888",
+        }}>
           {error}
         </div>
       )}
 
       {/* Text Highlights */}
-      <div className="space-y-3">
+      <div>
         {top.map((hl, idx) => (
           <div
             key={`${hl.turn}-${idx}`}
-            className={`pl-4 border-l-2 ${
-              TYPE_COLORS[hl.type] ?? "border-l-parchment-dim"
-            } py-2 pr-3 rounded-r bg-abyss-light animate-fade-in`}
-            style={{ animationDelay: `${idx * 150}ms` }}
+            className="animate-fade-in"
+            style={{
+              borderLeft: `3px solid ${TYPE_BORDER_COLORS[hl.type] ?? "#333"}`,
+              padding: "10px 14px",
+              marginBottom: 1,
+              background: "#0a0a0a",
+              animationDelay: `${idx * 150}ms`,
+            }}
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] font-display text-gold tracking-wider">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+              <span style={{ fontSize: 10, color: "#555", letterSpacing: 1 }}>
                 {TYPE_LABELS[hl.type] ?? hl.type}
               </span>
-              <span className="text-[10px] font-display text-parchment-dim tracking-wider">
+              <span style={{ fontSize: 10, color: "#333", letterSpacing: 1 }}>
                 Turn {hl.turn} — Floor {hl.floor}
               </span>
             </div>
-            <p className="text-sm text-parchment/80 italic">{hl.narration}</p>
-            <p className="text-xs text-parchment-dim mt-1">
-              Action: <span className="text-gold">{hl.choice}</span>
+            <p style={{ fontSize: 12, color: "#888", lineHeight: 1.6 }}>{hl.narration}</p>
+            <p style={{ fontSize: 11, color: "#555", marginTop: 4 }}>
+              ▸ {hl.choice}
             </p>
           </div>
         ))}

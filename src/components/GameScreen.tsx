@@ -10,6 +10,28 @@ import CustomInput from "./CustomInput";
 import LoadingIndicator from "./LoadingIndicator";
 import { OUTCOME_STYLES } from "../config/constants";
 
+// Outcome tier left-border colors per spec
+const OUTCOME_BORDER_COLORS: Record<string, string> = {
+  critical_success: "#ffffff",
+  success: "#888888",
+  partial: "#555555",
+  failure: "#ff3333",
+};
+
+const OUTCOME_BG_TINTS: Record<string, string> = {
+  critical_success: "rgba(255,255,255,0.03)",
+  success: "rgba(255,255,255,0.02)",
+  partial: "rgba(255,255,255,0.01)",
+  failure: "rgba(255,51,51,0.05)",
+};
+
+const OUTCOME_TEXT_COLORS: Record<string, string> = {
+  critical_success: "#ffffff",
+  success: "#bbbbbb",
+  partial: "#888888",
+  failure: "#ff3333",
+};
+
 interface GameScreenProps {
   state: GameState;
   onSelectOption: (option: HighLevelOption) => void;
@@ -32,15 +54,12 @@ export default function GameScreen({
   const bottomRef = useRef<HTMLDivElement>(null);
   const [narrationDone, setNarrationDone] = useState(false);
   const [hasLoadedMore, setHasLoadedMore] = useState(false);
-  const [prevNarration, setPrevNarration] = useState(state.currentNarration);
 
-  // Reset narration-dependent state when narration text changes
-  // (React-recommended pattern for adjusting state based on prop changes)
-  if (prevNarration !== state.currentNarration) {
-    setPrevNarration(state.currentNarration);
+  // Reset narration state when narration changes
+  useEffect(() => {
     setNarrationDone(false);
     setHasLoadedMore(false);
-  }
+  }, [state.currentNarration]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -53,34 +72,57 @@ export default function GameScreen({
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <StatsBar state={state} />
-      <InventoryStrip items={state.inventory} />
+    <div
+      style={{
+        background: "#050505",
+        minHeight: "100vh",
+        fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+        padding: 32,
+        fontSize: 13,
+      }}
+    >
+      <div style={{ maxWidth: 680, margin: "0 auto" }}>
+        <StatsBar state={state} />
 
-      <div className="flex-1 max-w-3xl mx-auto w-full px-4 py-6">
         {/* Turn history */}
         <NarrationLog history={state.history} />
 
         {/* Last outcome */}
         {state.lastOutcome && (
           <div
-            className={`mb-6 pl-4 border-l-2 ${
-              OUTCOME_STYLES[state.lastOutcome.tier]?.border ?? "border-l-parchment-dim"
-            } ${OUTCOME_STYLES[state.lastOutcome.tier]?.bg ?? ""} py-3 pr-3 rounded-r animate-fade-in`}
+            className="animate-fade-in"
+            style={{
+              marginBottom: 24,
+              padding: "10px 14px",
+              borderLeft: `3px solid ${OUTCOME_BORDER_COLORS[state.lastOutcome.tier] ?? "#555"}`,
+              background: OUTCOME_BG_TINTS[state.lastOutcome.tier] ?? "transparent",
+              fontSize: 14,
+              lineHeight: 1.7,
+              color: OUTCOME_TEXT_COLORS[state.lastOutcome.tier] ?? "#bbb",
+            }}
           >
-            <div className="text-xs font-display text-parchment-dim tracking-wider mb-1">
+            <div style={{ fontSize: 10, color: "#555", letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" as const }}>
               {OUTCOME_STYLES[state.lastOutcome.tier]?.label ?? state.lastOutcome.tier}
             </div>
-            <p className="text-parchment italic">{state.lastOutcome.narration}</p>
+            <p>{state.lastOutcome.narration}</p>
           </div>
         )}
 
         {/* Current narration */}
         {state.currentNarration && (
-          <div className="mb-6">
+          <div
+            style={{
+              fontSize: 15,
+              lineHeight: 1.8,
+              color: "#bbb",
+              padding: "16px 0",
+              borderTop: "1px solid #1a1a1a",
+              borderBottom: "1px solid #1a1a1a",
+              marginBottom: 28,
+            }}
+          >
             <TypewriterText
               text={state.currentNarration}
-              className="text-lg text-parchment leading-relaxed"
               onComplete={() => setNarrationDone(true)}
             />
           </div>
@@ -88,25 +130,41 @@ export default function GameScreen({
 
         {/* Error state */}
         {state.error && (
-          <div className="mb-6 p-4 border border-failure/50 bg-failure/10 rounded-lg animate-fade-in">
-            <p className="text-parchment-dim italic mb-3">{state.error}</p>
+          <div
+            className="animate-fade-in"
+            style={{
+              marginBottom: 24,
+              padding: "12px 16px",
+              borderLeft: "3px solid #ff3333",
+              background: "rgba(255,51,51,0.05)",
+            }}
+          >
+            <p style={{ color: "#888", fontSize: 13, marginBottom: 8 }}>{state.error}</p>
             <button
               onClick={onRetryAfterError}
-              className="font-display text-sm text-gold tracking-wider border border-gold/40 px-4 py-1.5 rounded hover:bg-gold/10 transition-colors"
+              style={{
+                background: "transparent",
+                border: "1px solid #333",
+                color: "#888",
+                padding: "8px 16px",
+                fontSize: 11,
+                letterSpacing: 1,
+                cursor: "pointer",
+                fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+                textTransform: "uppercase",
+              }}
             >
               TRY AGAIN
             </button>
           </div>
         )}
 
-        {/* Loading — only show standalone when no options are visible yet */}
-        {state.loading && state.currentOptions.length === 0 && (
-          <LoadingIndicator message={state.loadingMessage} />
-        )}
+        {/* Loading */}
+        {state.loading && <LoadingIndicator message={state.loadingMessage} />}
 
-        {/* Options area — stay visible while loading sub-options */}
-        {!state.error && narrationDone && state.currentOptions.length > 0 && (
-          <div className="space-y-3 animate-fade-in">
+        {/* Options area */}
+        {!state.loading && !state.error && narrationDone && state.currentOptions.length > 0 && (
+          <div className="animate-fade-in">
             <HighLevelOptions
               options={state.currentOptions}
               selectedOption={state.selectedOption}
@@ -116,13 +174,6 @@ export default function GameScreen({
               hasLoadedMore={hasLoadedMore}
             />
 
-            {/* Inline loading for sub-options */}
-            {state.selectedOption && state.loading && !state.currentSubOptions && (
-              <div className="ml-4 mt-3 border-l-2 border-gold-dim/20 pl-4">
-                <LoadingIndicator message={state.loadingMessage} />
-              </div>
-            )}
-
             {/* Sub-options */}
             {state.selectedOption && state.currentSubOptions && (
               <>
@@ -131,32 +182,45 @@ export default function GameScreen({
                   onSelect={onSelectSubOption}
                   loading={state.loading}
                 />
-                {/* Resolution loading — shown after picking a sub-option */}
-                {state.loading ? (
-                  <div className="ml-4 mt-3 border-l-2 border-gold-dim/20 pl-4">
-                    <LoadingIndicator message={state.loadingMessage} />
-                  </div>
-                ) : (
-                  <>
-                    <CustomInput
-                      onSubmit={onSubmitCustomInput}
-                      loading={state.loading}
-                    />
-                    <button
-                      onClick={onClearSelection}
-                      className="text-xs font-display text-parchment-dim/40 tracking-wider hover:text-parchment-dim transition-colors mt-2"
-                    >
-                      ← BACK TO OPTIONS
-                    </button>
-                  </>
-                )}
+                <CustomInput
+                  onSubmit={onSubmitCustomInput}
+                  loading={state.loading}
+                />
+                <BackToOptions onClick={onClearSelection} />
               </>
             )}
           </div>
         )}
 
+        {/* Inventory strip at bottom */}
+        <InventoryStrip items={state.inventory} />
+
         <div ref={bottomRef} />
       </div>
     </div>
+  );
+}
+
+function BackToOptions({ onClick }: { onClick: () => void }) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: "transparent",
+        border: "none",
+        color: hovered ? "#888" : "#333",
+        fontSize: 11,
+        cursor: "pointer",
+        transition: "all 0.15s",
+        fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+        marginTop: 8,
+      }}
+    >
+      ← back
+    </button>
   );
 }

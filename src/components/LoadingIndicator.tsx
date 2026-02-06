@@ -4,22 +4,17 @@ interface LoadingIndicatorProps {
 
 export default function LoadingIndicator({ message }: LoadingIndicatorProps) {
   return (
-    <div className="flex items-center gap-3 py-6 justify-center animate-fade-in">
-      <div className="flex gap-1">
-        <span
-          className="w-2 h-2 bg-gold rounded-full animate-bounce"
-          style={{ animationDelay: "0ms" }}
-        />
-        <span
-          className="w-2 h-2 bg-gold rounded-full animate-bounce"
-          style={{ animationDelay: "150ms" }}
-        />
-        <span
-          className="w-2 h-2 bg-gold rounded-full animate-bounce"
-          style={{ animationDelay: "300ms" }}
-        />
+    <div className="animate-fade-in" style={{ textAlign: "center", padding: "24px 0" }}>
+      <div style={{ marginBottom: 8, letterSpacing: 6 }}>
+        <span className="dot-pulse" style={{ color: "#555", animationDelay: "0s" }}>·</span>
+        {" "}
+        <span className="dot-pulse" style={{ color: "#555", animationDelay: "0.2s" }}>·</span>
+        {" "}
+        <span className="dot-pulse" style={{ color: "#555", animationDelay: "0.4s" }}>·</span>
       </div>
-      <span className="text-parchment-dim italic text-sm">{message}</span>
+      <div style={{ color: "#555", fontStyle: "italic", fontSize: 13 }}>
+        {message}
+      </div>
     </div>
   );
 }

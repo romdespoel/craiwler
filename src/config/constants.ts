@@ -40,29 +40,29 @@ export const LOADING_MESSAGES = [
 ];
 
 export const STAT_COLORS: Record<string, string> = {
-  strength: "text-str",
-  charisma: "text-cha",
-  creativity: "text-cre",
-  none: "text-parchment-dim",
+  strength: "text-text",
+  charisma: "text-text",
+  creativity: "text-text",
+  none: "text-muted",
 };
 
 export const STAT_BG_COLORS: Record<string, string> = {
-  strength: "bg-str/20",
-  charisma: "bg-cha/20",
-  creativity: "bg-cre/20",
-  none: "bg-parchment-dim/20",
+  strength: "bg-cell",
+  charisma: "bg-cell",
+  creativity: "bg-cell",
+  none: "bg-cell",
 };
 
 export const STAT_LABELS: Record<string, string> = {
   strength: "STR",
   charisma: "CHA",
   creativity: "CRE",
-  none: "—",
+  none: "\u2014",
 };
 
 export const OUTCOME_STYLES: Record<string, { border: string; bg: string; label: string }> = {
-  critical_success: { border: "border-l-critical", bg: "bg-critical/10", label: "Critical Success" },
-  success: { border: "border-l-success", bg: "bg-success/10", label: "Success" },
-  partial: { border: "border-l-partial", bg: "bg-partial/10", label: "Partial Success" },
-  failure: { border: "border-l-failure", bg: "bg-failure/10", label: "Failure" },
+  critical_success: { border: "border-l-white", bg: "bg-white/[0.03]", label: "Critical Success" },
+  success: { border: "border-l-muted", bg: "bg-white/[0.02]", label: "Success" },
+  partial: { border: "border-l-dim", bg: "bg-white/[0.01]", label: "Partial Success" },
+  failure: { border: "border-l-wild", bg: "bg-wild/[0.05]", label: "Failure" },
 };

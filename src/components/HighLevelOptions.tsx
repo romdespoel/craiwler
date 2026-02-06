@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { HighLevelOption } from "../types/game";
 
 interface HighLevelOptionsProps {
@@ -17,58 +18,118 @@ export default function HighLevelOptions({
   loading,
   hasLoadedMore,
 }: HighLevelOptionsProps) {
+  const [hovered, setHovered] = useState<string | null>(null);
+
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {options.map((option, idx) => {
+    <div>
+      {/* 2x2 Options Grid */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 1,
+          background: "#1a1a1a",
+        }}
+      >
+        {options.map((option) => {
           const isSelected = selectedOption?.id === option.id;
+          const isDimmed = selectedOption !== null && !isSelected;
+          const isHovered = hovered === option.id;
+
           return (
             <button
               key={option.id}
               onClick={() => onSelect(option)}
-              disabled={loading || (selectedOption !== null && !isSelected)}
-              className={`text-left p-4 rounded-lg border transition-all duration-200 animate-fade-in ${
-                option.wild
-                  ? isSelected
-                    ? "border-wild bg-wild/15"
-                    : "wild-pulse border-wild/60 hover:bg-wild/10"
-                  : isSelected
-                  ? "border-gold bg-gold/10"
-                  : "border-gold-dim/30 hover:border-gold-dim/60 bg-abyss-light"
-              } ${
-                selectedOption !== null && !isSelected
-                  ? "opacity-30 cursor-not-allowed"
-                  : "cursor-pointer"
-              }`}
-              style={{ animationDelay: `${idx * 80}ms` }}
+              disabled={loading || isDimmed}
+              onMouseEnter={() => setHovered(option.id)}
+              onMouseLeave={() => setHovered(null)}
+              style={{
+                background: isSelected || isHovered ? "#1a1a1a" : "#0a0a0a",
+                padding: "18px 16px",
+                cursor: isDimmed ? "default" : "pointer",
+                borderLeft: `3px solid ${
+                  isSelected
+                    ? option.wild ? "#ff3333" : "#fff"
+                    : option.wild
+                    ? "#ff3333"
+                    : isHovered
+                    ? "#fff"
+                    : "#222"
+                }`,
+                borderTop: "none",
+                borderRight: "none",
+                borderBottom: "none",
+                textAlign: "left",
+                transition: "all 0.15s",
+                opacity: isDimmed ? 0.35 : 1,
+                fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+              }}
             >
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-lg">{option.emoji}</span>
-                <span className="font-display text-sm text-gold tracking-wide">
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: isSelected || isHovered
+                      ? option.wild ? "#ff3333" : "#fff"
+                      : option.wild ? "#ff3333" : "#aaa",
+                    letterSpacing: 1,
+                    textTransform: "uppercase",
+                  }}
+                >
                   {option.label}
                 </span>
                 {option.wild && (
-                  <span className="text-[10px] font-display tracking-widest text-wild bg-wild/20 px-1.5 py-0.5 rounded">
+                  <span style={{ fontSize: 9, color: "#ff3333", fontWeight: 400, letterSpacing: 2 }}>
                     WILD
                   </span>
                 )}
               </div>
-              <p className="text-parchment-dim text-sm">{option.hint}</p>
+              <div style={{ fontSize: 11, color: "#555", marginTop: 6 }}>
+                {option.hint}
+              </div>
             </button>
           );
         })}
       </div>
 
-      {/* Load More */}
+      {/* Custom Action Row / Load More */}
       {!hasLoadedMore && !selectedOption && (
-        <button
-          onClick={onLoadMore}
-          disabled={loading}
-          className="w-full py-2 text-sm font-display text-parchment-dim/60 tracking-wider hover:text-parchment-dim transition-colors border border-dashed border-gold-dim/20 rounded hover:border-gold-dim/40"
-        >
-          REVEAL MORE OPTIONS
-        </button>
+        <CustomActionRow onClick={onLoadMore} loading={loading} />
       )}
     </div>
+  );
+}
+
+function CustomActionRow({ onClick, loading }: { onClick: () => void; loading: boolean }) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={loading}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        width: "100%",
+        marginTop: 1,
+        background: "#0a0a0a",
+        padding: "10px 16px",
+        borderLeft: "3px solid #222",
+        borderTop: "none",
+        borderRight: "none",
+        borderBottom: "none",
+        fontSize: 11,
+        color: hovered ? "#888" : "#333",
+        cursor: "pointer",
+        textAlign: "left",
+        transition: "all 0.15s",
+        fontFamily: "'IBM Plex Mono', 'Courier New', monospace",
+        textTransform: "uppercase",
+        letterSpacing: 1,
+      }}
+    >
+      CUSTOM ACTION ▸
+    </button>
   );
 }
