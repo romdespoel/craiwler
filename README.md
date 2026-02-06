@@ -1,73 +1,67 @@
-# React + TypeScript + Vite
+# Dungeon Craiwler
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An AI-driven text dungeon crawler played in the browser. Descend through a procedurally narrated dungeon, making decisions through a two-tier choice system. Runs last 15–30 minutes and end in permadeath.
 
-Currently, two official plugins are available:
+*You feel like a co-author of your story, but you can absolutely die in it.*
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Running the Game
 
-## React Compiler
+### Prerequisites
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js 18+
+- An [Anthropic API key](https://console.anthropic.com/)
 
-## Expanding the ESLint configuration
+### Install & Run
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open http://localhost:5173 in your browser.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Enter Your API Key
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+On the title screen, paste your Anthropic API key. The key is used client-side only and is never stored or transmitted anywhere except directly to the Anthropic API.
+
+## API Keys Required
+
+| Key | Required | How to Get |
+|-----|----------|------------|
+| Anthropic API | Yes | https://console.anthropic.com/ |
+
+The game calls the Anthropic API directly from the browser using:
+- **Claude Sonnet** for opening scenarios, action resolution, and floor transitions
+- **Claude Haiku** for sub-option generation, custom input validation, and "load more" options
+
+## How to Play
+
+1. **Choose a class**: Fighter (STR), Merchant (CHA), or Artist (CRE)
+2. **Read the narration**: Each situation is described in 2-3 sentences
+3. **Pick a high-level intent**: 4 options like "Fight", "Negotiate", "Investigate"
+4. **Choose a specific action**: Each intent expands into 4 sub-actions with stat checks
+5. **See the outcome**: Success, partial success, or failure based on your stats + luck
+6. **Survive 10 floors**: Or die trying
+
+### Wild Options
+
+One option in each set is marked **WILD** (pulsing red border). These are high-risk, high-reward choices that can pay off spectacularly or backfire badly. They're a real strategic axis, not comic relief.
+
+### Custom Actions
+
+Click "Write your own action" to type a free-text command (max 200 characters). If your action is impossible given the world state, it fails diegetically and costs your turn.
+
+## Build for Production
+
+```bash
+npm run build
 ```
+
+Output goes to `dist/`. Serve with any static file server.
+
+## Tech Stack
+
+- React + TypeScript
+- Vite
+- Tailwind CSS v4
+- Anthropic Claude API (Sonnet + Haiku)
