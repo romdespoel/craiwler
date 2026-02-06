@@ -24,7 +24,7 @@ interface ApiCallOptions {
 }
 
 const MODEL_MAP = {
-  haiku: "claude-haiku-4-5-20250501",
+  haiku: "claude-3-5-haiku-20241022",
   sonnet: "claude-sonnet-4-20250514",
 };
 
